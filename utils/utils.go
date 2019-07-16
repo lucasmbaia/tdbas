@@ -18,7 +18,6 @@ func Cmd(command string, args []string, timeout int32) ([]string, error) {
 		result []string
 	)
 
-	fmt.Println(command, args)
 	ctx, cancel = context.WithTimeout(context.Background(), time.Duration(timeout)*time.Second)
 	defer cancel()
 
@@ -36,14 +35,4 @@ func Cmd(command string, args []string, timeout int32) ([]string, error) {
 	}
 
 	return result, nil
-}
-
-func ExistsStringElement(f string, s []string) (int, bool) {
-	for idx, str := range s {
-		if str == f {
-			return idx, true
-		}
-	}
-
-	return 0, false
 }

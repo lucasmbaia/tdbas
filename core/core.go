@@ -94,7 +94,6 @@ func (c *Core) CreateDB(cont Container) (cs []Container, err error) {
 					ct.Ports, err = operations.PortsContainer(ct.Name)
 					cs = append(cs, ct)
 
-					fmt.Println(event)
 					wg.Done()
 				}
 			}

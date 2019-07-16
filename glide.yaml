@@ -1,6 +1,7 @@
-package: github.com/lucasmbaia/forcloudy/tdbas
+package: github.com/lucasmbaia/tdbas
 import:
-- package: github.com/kataras/iris
-  version: 54eb51a8f90272cdda3c08f6b9e3d2adc0f793b1
-- package: github.com/lucasmbaia/forcloudy/etcd
-- package: github.com/lucasmbaia/go-xmpp
+- package: github.com/gin-gonic/gin
+- package: github.com/satori/go.uuid
+  version: b2ce2384e17bbe0c6d34077efa39dbab3e09123b
+- package: github.com/etcd-io/etcd/client
+  version: ae25c5e1320f731a2ffaafbf756aca8b0a94dfab
