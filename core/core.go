@@ -1,6 +1,7 @@
 package core
 
 import (
+	"os"
 	"fmt"
 	"sync"
 	"context"
@@ -13,18 +14,25 @@ type Core struct {
 	sync.RWMutex
 
 	eventsDocker  map[string]chan docker.Events
+	path	      string
+}
+
+type CoreConfig struct {
+	PathVolume  string
 }
 
 type Container struct {
-	Name	  string
-	Replicas  int
-	Address	  string
-	Ports	  []operations.Ports
+	Organization  string
+	Name	      string
+	Replicas      int
+	Address	      string
+	Ports	      []operations.Ports
 }
 
-func NewCore(ctx context.Context) (c Core, err error) {
+func NewCore(ctx context.Context, cfg CoreConfig) (c Core, err error) {
 	c.eventsDocker = make(map[string]chan docker.Events)
 	c.watchEvents(ctx)
+	c.path = cfg.PathVolume
 
 	return
 }
@@ -63,7 +71,50 @@ func (c *Core) watchEvents(ctx context.Context) {
 	}()
 }
 
-func (c *Core) CreateDB(cont Container) (cs []Container, err error) {
+func (c *Core) CreateDB(cont Container) (cs Container, err error) {
+	var (
+		ev    = make(chan docker.Events, 1)
+		path  string
+		wg    sync.WaitGroup
+	)
+
+	path = fmt.Sprintf("%s%s/%s", c.path, cont.Organization, cont.Name)
+	if _, err = os.Stat(path); os.IsNotExist(err) {
+		if err = os.MkdirAll(path, os.ModePerm); err != nil {
+			return
+		}
+	}
+
+	c.Lock()
+	c.eventsDocker[cont.Name] = ev
+	c.Unlock()
+
+	go func() {
+		operations.CreateContainer(cont.Name, path)
+	}()
+
+	wg.Add(1)
+	go func() {
+		for {
+			select {
+			case event := <-ev:
+				switch event.Action{
+				case "start":
+					cs.Name = event.Actor.Attributes.Name
+					cs.Address, err = operations.AddressContainer(cs.Name)
+					cs.Ports, err = operations.PortsContainer(cs.Name)
+
+					wg.Done()
+				}
+			}
+		}
+	}()
+	wg.Wait()
+
+	return
+}
+
+/*func (c *Core) CreateDB(cont Container) (cs []Container, err error) {
 	var (
 		ev    = make(chan docker.Events, 1)
 		wg    sync.WaitGroup
@@ -102,4 +153,4 @@ func (c *Core) CreateDB(cont Container) (cs []Container, err error) {
 	wg.Wait()
 
 	return
-}
+}*/

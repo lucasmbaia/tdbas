@@ -50,13 +50,13 @@ func (r *Repository) Create(entity interface{}) (err error) {
 	return
 }
 
-func (r *Repository) ReadAll(entity interface{}) (ok bool, err error) {
+func (r *Repository) ReadAll(condition, entity interface{}) (ok bool, err error) {
 	if reflect.ValueOf(entity).Kind() != reflect.Ptr {
 		err = errors.New("The target struct is required to be a pointer")
 		return
 	}
 
-	var operation *gorm.DB = r.DB.Find(entity)
+	var operation *gorm.DB = r.DB.Set("gorm:auto_preload", true).Find(entity, condition)
 
 	if operation.Error != nil {
 		err = operation.Error

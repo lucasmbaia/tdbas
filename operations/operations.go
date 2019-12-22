@@ -1,6 +1,7 @@
 package operations
 
 import (
+	"fmt"
 	"strings"
 	"github.com/lucasmbaia/tdbas/utils"
 )
@@ -14,13 +15,16 @@ type Ports struct {
 	Destinations  []string
 }
 
-func CreateContainer(name string) (id string, err error) {
+func CreateContainer(name, path string) (id string, err error) {
 	var (
 		result	[]string
 		args	[]string
 	)
 
-	args = []string{"run", "-e", "ACCEPT_EULA=Y", "-e", "SA_PASSWORD=totvs@123", "-P", "--expose=1433", "--name", name, "-d", "mcr.microsoft.com/mssql/server:2017-latest"}
+	//args = []string{"run", "-e", "ACCEPT_EULA=Y", "-e", "SA_PASSWORD=totvs@123", "-P", "--expose=1433", "--name", name, "-d", "mcr.microsoft.com/mssql/server:2017-latest"}
+	args = []string{"run", "-it", "-e", "ACCEPT_EULA=Y", "-e", "SA_PASSWORD=totvs@123", "-P", "--expose=1433", "--name", name, "-v", fmt.Sprintf("%s:/var/opt/mssql", path), "-d", "mcr.microsoft.com/mssql/server:2017-latest"}
+
+	fmt.Println(strings.Join(args, " "))
 
 	if result, err = utils.Cmd("docker", args, 60); err != nil {
 		return

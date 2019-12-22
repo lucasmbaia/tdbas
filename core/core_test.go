@@ -7,11 +7,11 @@ import (
 )
 
 func Test_CreateDB(t *testing.T) {
-	c, _ := NewCore(context.Background())
+	c, _ := NewCore(context.Background(), CoreConfig{PathVolume: "/data/SQLServer/"})
 
 	ct, _ := c.CreateDB(Container{
-		Name:	  "teste-sql",
-		Replicas: 2,
+		Organization: "lucas",
+		Name:	      "teste-sql",
 	})
 
 	fmt.Println(ct)

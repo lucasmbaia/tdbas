@@ -48,8 +48,9 @@ type ConfHttpHttps struct {
 }
 
 type ConfTcpUdp struct {
-	Hosts []Hosts `json:"hosts,omitempty"`
-	Dns   string  `json:"dns,omitempty"`
+	Hosts	[]Hosts	  `json:"hosts,omitempty"`
+	Dns	string	  `json:"dns,omitempty"`
+	Sources	[]string  `json:"sources,omitempty"`
 }
 
 type Hosts struct {
@@ -116,7 +117,7 @@ func (ha *HAProxy) GenerateConf(h HAProxyConfig) error {
 				return err
 			}
 
-			key = fmt.Sprintf("%s%s/%s", KEY_ETCD, h.Customer, h.ApplicationName)
+			key = fmt.Sprintf("%s%s_%s", KEY_ETCD, h.Customer, h.ApplicationName)
 			if err = ha.Etcd.Set(key, confTcpUdp); err != nil {
 				return err
 			}
@@ -163,7 +164,7 @@ func (ha *HAProxy) RemoveContainer(h HAProxyConfig) error {
 				}
 			}
 		} else {
-			key = fmt.Sprintf("%s%s/%s", KEY_ETCD, h.Customer, h.ApplicationName)
+			key = fmt.Sprintf("%s%s_%s", KEY_ETCD, h.Customer, h.ApplicationName)
 
 			if exists = ha.Etcd.Exists(key); exists {
 				var conf ConfHttpHttps
@@ -205,7 +206,7 @@ func (ha *HAProxy) tcpAndUdp(i infos) (ConfTcpUdp, error) {
 		err      error
 	)
 
-	key = fmt.Sprintf("%s%s/%s", KEY_ETCD, i.Customer, i.ApplicationName)
+	key = fmt.Sprintf("%s%s_%s", KEY_ETCD, i.Customer, i.ApplicationName)
 	exists = ha.Etcd.Exists(key)
 
 	if exists {

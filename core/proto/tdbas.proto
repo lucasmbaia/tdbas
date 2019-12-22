@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+package tdbas;
+
+message Task {
+  string tracking = 1;
+  string name = 2;
+  string parameters = 3;
+}
+
+enum TaskStatusCode {
+  Unknown = 0;
+  Ok = 1;
+  Failed = 2;
+}
+
+message TaskStatus {
+  string Message = 1;
+  TaskStatusCode Code = 2;
+}
+
+service TdbasService {
+  rpc CallTask(Task) returns (TaskStatus) {}
+}
